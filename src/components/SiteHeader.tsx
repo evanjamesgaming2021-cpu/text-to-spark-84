@@ -21,6 +21,9 @@ export function SiteHeader() {
           <Link to="/list" className="text-sm font-medium text-muted-foreground transition-smooth hover:text-foreground" activeProps={{ className: "text-foreground" }}>
             List a Part
           </Link>
+          <Link to="/my-listings" className="text-sm font-medium text-muted-foreground transition-smooth hover:text-foreground" activeProps={{ className: "text-foreground" }}>
+            My Listings
+          </Link>
         </nav>
         <div className="flex items-center gap-2">
           <Button asChild size="sm" variant="hero">
