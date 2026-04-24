@@ -1,11 +1,12 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Check, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { addListing, CATEGORIES, CONDITIONS } from "@/lib/listings";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/list")({
   head: () => ({
@@ -19,10 +20,26 @@ export const Route = createFileRoute("/list")({
 
 function ListPart() {
   const navigate = useNavigate();
+  const { user, profile, loading } = useAuth();
   const [type, setType] = useState<"Trade" | "Donation">("Trade");
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [condition, setCondition] = useState(CONDITIONS[1]);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!loading && !user) navigate({ to: "/auth" });
+  }, [loading, user, navigate]);
+
+  if (loading || !user) {
+    return (
+      <div className="mx-auto max-w-2xl px-6 py-16 text-center text-muted-foreground">
+        <p>Checking your session...</p>
+        <p className="mt-2 text-sm">
+          Not signed in? <Link to="/auth" className="text-primary hover:underline">Sign in</Link>
+        </p>
+      </div>
+    );
+  }
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -106,7 +123,7 @@ function ListPart() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <Label htmlFor="team">FRC team #</Label>
-            <Input id="team" name="team" required inputMode="numeric" placeholder="1234" className="mt-1.5" />
+            <Input id="team" name="team" required inputMode="numeric" placeholder="1234" className="mt-1.5" defaultValue={profile?.team_number ?? ""} />
           </div>
           <div>
             <Label htmlFor="location">Location</Label>
@@ -116,7 +133,7 @@ function ListPart() {
 
         <div>
           <Label htmlFor="email">Contact email</Label>
-          <Input id="email" name="email" type="email" required placeholder="parts@yourteam.org" className="mt-1.5" />
+          <Input id="email" name="email" type="email" required placeholder="parts@yourteam.org" className="mt-1.5" defaultValue={profile?.email ?? user.email ?? ""} />
           <p className="mt-1.5 text-xs text-muted-foreground">
             Other teams will email you directly here. Use a team-shared inbox if possible.
           </p>
