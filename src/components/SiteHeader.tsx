@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Cog } from "lucide-react";
+import { Cog, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function SiteHeader() {
@@ -18,19 +18,13 @@ export function SiteHeader() {
           <Link to="/browse" className="text-sm font-medium text-muted-foreground transition-smooth hover:text-foreground" activeProps={{ className: "text-foreground" }}>
             Browse Parts
           </Link>
-          <Link to="/how-it-works" className="text-sm font-medium text-muted-foreground transition-smooth hover:text-foreground" activeProps={{ className: "text-foreground" }}>
-            How it Works
-          </Link>
-          <Link to="/about" className="text-sm font-medium text-muted-foreground transition-smooth hover:text-foreground" activeProps={{ className: "text-foreground" }}>
-            About
+          <Link to="/list" className="text-sm font-medium text-muted-foreground transition-smooth hover:text-foreground" activeProps={{ className: "text-foreground" }}>
+            List a Part
           </Link>
         </nav>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
-            Sign in
-          </Button>
-          <Button size="sm" variant="hero">
-            Register team
+          <Button asChild size="sm" variant="hero">
+            <Link to="/list"><Plus /> List a part</Link>
           </Button>
         </div>
       </div>
