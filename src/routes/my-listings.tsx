@@ -1,8 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Plus, PackageOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ListingCard } from "@/components/ListingCard";
 import { useMyListings } from "@/lib/listings";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/my-listings")({
   head: () => ({
@@ -15,7 +17,21 @@ export const Route = createFileRoute("/my-listings")({
 });
 
 function MyListings() {
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const mine = useMyListings();
+
+  useEffect(() => {
+    if (!loading && !user) navigate({ to: "/auth" });
+  }, [loading, user, navigate]);
+
+  if (loading || !user) {
+    return (
+      <div className="mx-auto max-w-2xl px-6 py-16 text-center text-muted-foreground">
+        Checking your session...
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-10 lg:py-14">

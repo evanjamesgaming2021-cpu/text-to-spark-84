@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { Cog, Plus } from "lucide-react";
+import { Cog, Plus, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth";
 
 export function SiteHeader() {
+  const { user, signOut } = useAuth();
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
@@ -26,9 +28,20 @@ export function SiteHeader() {
           </Link>
         </nav>
         <div className="flex items-center gap-2">
-          <Button asChild size="sm" variant="hero">
-            <Link to="/list"><Plus /> List a part</Link>
-          </Button>
+          {user ? (
+            <>
+              <Button asChild size="sm" variant="hero" className="hidden sm:inline-flex">
+                <Link to="/list"><Plus /> List a part</Link>
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => signOut()} aria-label="Sign out">
+                <LogOut /> <span className="hidden sm:inline">Sign out</span>
+              </Button>
+            </>
+          ) : (
+            <Button asChild size="sm" variant="hero">
+              <Link to="/auth">Sign in</Link>
+            </Button>
+          )}
         </div>
       </div>
     </header>
