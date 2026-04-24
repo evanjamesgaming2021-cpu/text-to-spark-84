@@ -1,8 +1,8 @@
-import { Mail, MapPin } from "lucide-react";
+import { Mail, MapPin, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { buildContactMailto, type Listing } from "@/lib/listings";
+import { buildContactMailto, deleteListing, type Listing } from "@/lib/listings";
 
-export function ListingCard({ listing }: { listing: Listing }) {
+export function ListingCard({ listing, owned = false }: { listing: Listing; owned?: boolean }) {
   return (
     <article className="flex flex-col rounded-2xl border border-border bg-card p-5 shadow-card transition-smooth hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-elegant">
       <div className="flex items-start justify-between gap-3">
@@ -27,11 +27,23 @@ export function ListingCard({ listing }: { listing: Listing }) {
           <MapPin className="h-3 w-3" /> {listing.location}
         </span>
       </div>
-      <Button asChild variant="hero" className="mt-4 w-full">
-        <a href={buildContactMailto(listing)}>
-          <Mail /> Contact team
-        </a>
-      </Button>
+      {owned ? (
+        <Button
+          variant="outline"
+          className="mt-4 w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
+          onClick={() => {
+            if (confirm(`Delete "${listing.name}"?`)) deleteListing(listing.id);
+          }}
+        >
+          <Trash2 /> Delete listing
+        </Button>
+      ) : (
+        <Button asChild variant="hero" className="mt-4 w-full">
+          <a href={buildContactMailto(listing)}>
+            <Mail /> Contact team
+          </a>
+        </Button>
+      )}
     </article>
   );
 }

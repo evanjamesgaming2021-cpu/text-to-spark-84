@@ -29,6 +29,7 @@ export const CATEGORIES = [
 export const CONDITIONS = ["New", "Used – Excellent", "Used – Good", "Used – Fair"];
 
 const KEY = "frc-listings-v1";
+const MINE_KEY = "frc-my-listings-v1";
 
 const SEED: Listing[] = [
   { id: "s1", name: "NEO Brushless Motor (x2)", category: "Motors", condition: "Used – Excellent", type: "Trade", team: "2046", email: "parts@team2046.example", location: "Kirkland, WA", createdAt: Date.now() - 86400000 },
@@ -56,6 +57,22 @@ function write(items: Listing[]) {
   window.dispatchEvent(new Event("frc-listings-changed"));
 }
 
+function readMine(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(MINE_KEY);
+    return raw ? (JSON.parse(raw) as string[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeMine(ids: string[]) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(MINE_KEY, JSON.stringify(ids));
+  window.dispatchEvent(new Event("frc-listings-changed"));
+}
+
 export function useListings() {
   const [items, setItems] = useState<Listing[]>(SEED);
 
@@ -77,7 +94,32 @@ export function addListing(l: Omit<Listing, "id" | "createdAt">) {
   const items = read();
   const next: Listing = { ...l, id: crypto.randomUUID(), createdAt: Date.now() };
   write([next, ...items]);
+  writeMine([next.id, ...readMine()]);
   return next;
+}
+
+export function deleteListing(id: string) {
+  write(read().filter((l) => l.id !== id));
+  writeMine(readMine().filter((mine) => mine !== id));
+}
+
+export function useMyListings() {
+  const all = useListings();
+  const [mineIds, setMineIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    setMineIds(readMine());
+    const onChange = () => setMineIds(readMine());
+    window.addEventListener("frc-listings-changed", onChange);
+    window.addEventListener("storage", onChange);
+    return () => {
+      window.removeEventListener("frc-listings-changed", onChange);
+      window.removeEventListener("storage", onChange);
+    };
+  }, []);
+
+  const set = new Set(mineIds);
+  return all.filter((l) => set.has(l.id));
 }
 
 export function buildContactMailto(l: Listing) {
